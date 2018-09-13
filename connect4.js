@@ -9,9 +9,10 @@
 const WIDTH = 7
 const HEIGHT = 6
 
+
 let currPlayer = 1;  // active player: 1 or 2
 let board = [];      // array of rows, each row is array of cells  (board[y][x])
-
+let difficultyLevel=1;
 
 /** makeBoard: create in-JS board structure: 
  *    board = array of rows, each row is array of cells  (board[y][x]) 
@@ -86,11 +87,10 @@ function findSpotForCol(x) {
   // TODO: finds lowest y based on x value
   for(let i=board.length-1;i>=0;i--){
     if(board[i][x]===undefined){
-      board[i][x]=currPlayer;
+      
       return i;
     }
   }
-  return null;
 }
 
 // /** placeInTable: update DOM to place piece into HTML board */
@@ -121,16 +121,20 @@ function endGame(msg) {
 // /** handleClick: handle click of column top to play piece */
 
 function handleClick(evt) {
+  let x;
   // get x from ID of clicked cell
-  let x = +evt.target.id;
+  if(currPlayer===1 && difficultyLevel!==4){
+    x = +evt.target.id;
+  } else{
+    x = robotAiChoice(difficultyLevel);
+  }
+
 
   // get next spot in column (if none, ignore click)
   let y = findSpotForCol(x);
-
-  if (y === null) {
-    return;
+  if(y!==undefined){
+    board[y][x]=currPlayer;
   }
-
   // place piece in board and add to HTML table
   // TODO: add line to update in-memory board (done in placeInTable);
   placeInTable(y, x)
@@ -150,6 +154,38 @@ function handleClick(evt) {
   // switch players
   // TODO: switch currPlayer 1 <-> 2
   currPlayer=currPlayer===1 ? 2:1;
+
+  if(currPlayer===2 && difficultyLevel !==4){
+    setTimeout(()=>handleClick(),500);
+  }
+}
+
+function robotAiChoice(level){
+  if(level===1){
+    return easyAi();
+  } else if(level===2){
+    return mediumAi();
+  } else{
+    return hardAi();
+  }
+}
+
+function easyAi(){
+  let guess = Math.floor(Math.random() * Math.floor(6));
+  while(findSpotForCol(guess)===undefined){
+    guess= Math.floor(Math.random() * Math.floor(6));
+  }
+  console.log(guess);
+  return guess;
+}
+
+function mediumAi(){
+  let guess = Math.floor(Math.random() * Math.floor(6));
+  while(findSpotForCol(guess)===undefined){
+    guess= Math.floor(Math.random() * Math.floor(6));
+  }
+  console.log(guess);
+  return guess;
 }
 
 // /** checkForWin: check board cell-by-cell for "does a win start here?" */
